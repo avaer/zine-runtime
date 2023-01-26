@@ -1,12 +1,11 @@
 import * as THREE from 'three';
-import easing from '../easing.js';
-import {
-  playersManager,
-} from '../players-manager.js';
-import {
-  scene,
-  // rootScene,
-} from '../renderer.js';
+import easing from './easing.js';
+// import {
+//   playersManager,
+// } from '../players-manager.js';
+// import {
+//   scene,
+// } from '../renderer.js';
 
 //
 
@@ -124,6 +123,7 @@ function getSignedAngle(x1, y1, x2, y2) {
 function setAnimatedCamera(
   camera,
   srcCamera,
+  localPlayer,
   followView,
   cameraZ,
   edgeDepths,
@@ -150,7 +150,7 @@ function setAnimatedCamera(
     }
     
     // apply camera wheel offset
-    const localPlayer = playersManager.getLocalPlayer();
+    // const localPlayer = playersManager.getLocalPlayer();
     {
       localPlane.setFromNormalAndCoplanarPoint(
         localVector.set(0, 0, -1).applyQuaternion(camera.quaternion),
@@ -381,7 +381,10 @@ function setAnimatedCamera(
 //
 
 export class ZineCameraManager extends EventTarget {
-  constructor(camera, options = {}) {
+  constructor({
+    camera,
+    localPlayer,
+  }, options = {}) {
     super();
 
     if (options.normalizeView === undefined) {
@@ -392,6 +395,7 @@ export class ZineCameraManager extends EventTarget {
     }
 
     this.camera = camera;
+    this.localPlayer = localPlayer;
     this.options = options;
 
     this.cameraLocked = false;
@@ -484,6 +488,7 @@ export class ZineCameraManager extends EventTarget {
         if (!setAnimatedCamera(
           this.camera,
           this.lockCamera,
+          this.localPlayer,
           !!this.options.followView,
           this.cameraZ,
           this.edgeDepths,
