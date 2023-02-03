@@ -457,12 +457,13 @@ export class ZineCameraManager extends EventTarget {
 
   handleMouseMove(e) {
     if (this.cameraLocked) {
-      this.dispatchEvent(new MessageEvent('mousemove', {
-        data: {
-          movementX: e.movementX,
-          movementY: e.movementY,
-        },
-      }));
+      const {movementX, movementY} = e;
+      const rate = 0.002;
+      this.mousePosition.x += movementX * rate;
+      this.mousePosition.y += movementY * rate;
+
+      this.mousePosition.x = Math.min(Math.max(this.mousePosition.x, -1), 1);
+      this.mousePosition.y = Math.min(Math.max(this.mousePosition.y, -1), 1);
       return true;
     } else {
       return false;
@@ -473,9 +474,6 @@ export class ZineCameraManager extends EventTarget {
     if (this.cameraLocked) {
       this.cameraZ -= e.deltaY * 0.01;
       this.cameraZ = Math.min(Math.max(this.cameraZ, 0), 5);
-      // if (!this.target) {
-      //   cameraOffsetTargetZ = Math.min(cameraOffset.z - e.deltaY * 0.01, 0);
-      // }
       return true;
     } else {
       return false;
