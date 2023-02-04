@@ -46,10 +46,10 @@ import {
 } from './zine-runtime-utils.js';
 import {
   StoryTargetMesh,
-} from './meshes/story-target-mesh.js';
-// import {
-//   EntranceExitMesh,
-// } from './meshes/entrance-exit-mesh.js';
+} from '../zine-aux/meshes/story-target-mesh.js';
+import {
+  EntranceExitMesh,
+} from '../zine-aux/meshes/entrance-exit-mesh.js';
 import {
   PanelRuntimeItems,
 } from './actors/zine-item-actors.js';
@@ -168,16 +168,16 @@ class PanelRuntimeInstance extends THREE.Object3D {
       capSceneMesh.visible = true;
     }
 
-    // // extra meshes
-    // let entranceExitMesh;
-    // {
-    //   entranceExitMesh = new EntranceExitMesh({
-    //     entranceExitLocations,
-    //   });
-    //   // entranceExitMesh.visible = false;
-    //   zineRenderer.transformScene.add(entranceExitMesh);
-    // }
-    // this.entranceExitMesh = entranceExitMesh;
+    // extra meshes
+    let entranceExitMesh;
+    {
+      entranceExitMesh = new EntranceExitMesh({
+        entranceExitLocations,
+      });
+      // entranceExitMesh.visible = false;
+      zineRenderer.transformScene.add(entranceExitMesh);
+    }
+    this.entranceExitMesh = entranceExitMesh;
 
     // physics
     const physicsIds = [];
