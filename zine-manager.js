@@ -831,7 +831,7 @@ export class PanelInstanceManager extends THREE.Object3D {
         
         // raycast
         {
-          localRaycaster.setFromCamera(localVector2D, camera);
+          localRaycaster.setFromCamera(localVector2D, this.zineCameraManager.camera);
 
           let result;
           {
