@@ -710,7 +710,6 @@ export class PanelInstanceManager extends THREE.Object3D {
           const signedDistance = localPlane.distanceToPoint(capsulePosition);
 
           // if we are on the opposite side of the entrance plane
-          // console.log('signed distance', signedDistance);
           if (signedDistance < 0) {
             // align new panel under avatar
             {
