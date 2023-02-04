@@ -770,13 +770,9 @@ export class PanelInstanceManager extends THREE.Object3D {
     }) ?? this.panelInstances[0];
     rootPanel.setSelected(true);
   }
-  async spawn() {
+  spawn() {
     const firstPanel = this.panelInstances[this.panelIndex];
     const {cameraEntranceLocation} = firstPanel.zineRenderer.metadata;
-    // if (!cameraEntranceLocation) {
-    //   console.warn('no camera entrance location', firstPanel);
-    //   debugger;
-    // }
     const position = new THREE.Vector3()
       .fromArray(cameraEntranceLocation.position);
     const quaternion = new THREE.Quaternion()
