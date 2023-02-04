@@ -622,17 +622,20 @@ export class PanelInstanceManager extends THREE.Object3D {
       panelInstance.addEventListener('transition', e => {
         // attempt to transition panels
         const {
-          entranceExitIndex,
-          panelIndexDelta,
+          // entranceExitIndex,
+          exitIndex,
+          // panelIndexDelta,
+          panelIndex: nextPanelIndex,
+          entranceIndex,
         } = e;
-        let nextPanelIndex = this.panelIndex + panelIndexDelta;
+        // let nextPanelIndex = this.panelIndex + panelIndexDelta;
         if (nextPanelIndex >= 0 && nextPanelIndex < panels.length) { // if it leads to a valid panel
           // check that we are on the opposite side of the exit plane
           // this is to prevent glitching back and forth between panels
 
           const currentPanelInstance = this.panelInstances[this.panelIndex];
           const {entranceExitLocations} = currentPanelInstance.zineRenderer.metadata;
-          const exitLocation = entranceExitLocations[entranceExitIndex];
+          const exitLocation = entranceExitLocations[exitIndex];
           
           // compute exitWorldLocation
           localMatrix.compose(
@@ -702,15 +705,17 @@ export class PanelInstanceManager extends THREE.Object3D {
             localVector.fromArray(exitWorldLocation.position)
           );
 
-          const localPlayer = playersManager.getLocalPlayer();
+          const {localPlayer} = this;
           const capsulePosition = localPlayer.position;
           const signedDistance = localPlane.distanceToPoint(capsulePosition);
 
           // if we are on the opposite side of the entrance plane
+          // console.log('signed distance', signedDistance);
           if (signedDistance < 0) {
             // align new panel under avatar
             {
-              const localPlayer = playersManager.getLocalPlayer();
+              // const localPlayer = playersManager.getLocalPlayer();
+              const {localPlayer} = this;
               const playerHeight = localPlayer.avatar.height;
               const playerFloorPosition = localPlayer.position.clone();
               playerFloorPosition.y -= playerHeight;
