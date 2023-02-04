@@ -1,29 +1,29 @@
 import * as THREE from 'three';
 // import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import {
-  camera,
-  getRenderer,
-  scene,
-} from '../renderer.js';
-import spawnManager from '../spawn-manager.js';
+// import {
+//   camera,
+//   getRenderer,
+//   scene,
+// } from '../renderer.js';
+import spawnManager from '../../spawn-manager.js';
 import {
   ZineStoryboard,
   zineMagicBytes,
-} from 'zine/zine-format.js';
+} from '../zine/zine-format.js';
 import {
   ZineRenderer,
-} from 'zine/zine-renderer.js';
+} from '../zine/zine-renderer.js';
 import {
   panelSize,
   floorNetWorldSize,
   floorNetWorldDepth,
   floorNetResolution,
   floorNetPixelSize,
-} from 'zine/zine-constants.js';
+} from '../zine/zine-constants.js';
 import {
   setPerspectiveCameraFromJson,
   setOrthographicCameraFromJson,
-} from 'zine/zine-camera-utils.js';
+} from '../zine/zine-camera-utils.js';
 import {
   reconstructPointCloudFromDepthField,
   setCameraViewPositionFromOrthographicViewZ,
@@ -32,14 +32,14 @@ import {
   getDepthFloat32ArrayWorldPosition,
   getDoubleSidedGeometry,
   getGeometryHeights,
-} from 'zine/zine-geometry-utils.js';
+} from '../zine/zine-geometry-utils.js';
 import {
   getFloorNetPhysicsMesh,
-} from 'zine/zine-mesh-utils.js';
-import zineCameraManagerGlobal from './zine-camera-manager.js';
-import {
-  playersManager,
-} from '../players-manager.js';
+} from '../zine/zine-mesh-utils.js';
+// import zineCameraManagerGlobal from './zine-camera-manager.js';
+// import {
+//   playersManager,
+// } from '../players-manager.js';
 
 import {
   getCapsuleIntersectionIndex,
@@ -63,9 +63,9 @@ import {
   PanelRuntimeMobs,
 } from './actors/zine-mob-actors.js';
 
-import {heightfieldScale} from '../constants.js'
-import {world} from '../world.js';
-import {makePromise} from '../util.js';
+import {heightfieldScale} from '../../constants/physics-constants.js';
+// import {world} from '../world.js';
+import {makePromise} from '../../utils.js';
 
 // constants
 
@@ -92,6 +92,7 @@ class PanelRuntimeInstance extends THREE.Object3D {
   constructor(panel, {
     zineCameraManager,
     physics,
+    localPlayer,
   }) {
     super();
 
@@ -100,6 +101,7 @@ class PanelRuntimeInstance extends THREE.Object3D {
     this.zineCameraManager = zineCameraManager;
     this.panel = panel;
     this.physics = physics;
+    this.localPlayer = localPlayer;
 
     this.loaded = false;
     this.selected = false;
@@ -254,7 +256,6 @@ class PanelRuntimeInstance extends THREE.Object3D {
       };
       physicsIds.push(floorNetPhysicsObject);
       this.floorNetPhysicsObject = floorNetPhysicsObject;
-      console.log('zine create floor net physics object', floorNetPhysicsObject);
     }
 
     // wall plane meshes
@@ -344,7 +345,7 @@ class PanelRuntimeInstance extends THREE.Object3D {
       const p = makePromise();
       const onload = () => {
         cleanup();
-        p.accept();
+        p.resolve();
       };
       const cleanup = () => {
         this.removeEventListener('load', onload);
@@ -384,6 +385,8 @@ class PanelRuntimeInstance extends THREE.Object3D {
     });
   }
   setActorsEnabled(enabled = true) {
+    return; // XXX unlock this
+
     if (enabled) {
       const layer0 = this.panel.getLayer(0);
       const id = layer0.getData('id');
