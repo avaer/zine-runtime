@@ -562,10 +562,12 @@ export class PanelInstanceManager extends THREE.Object3D {
     const {
       zineCameraManager,
       physics,
+      localPlayer,
     } = this;
     const panelOpts = {
       zineCameraManager,
       physics,
+      localPlayer,
     };
 
     // create panel instances
