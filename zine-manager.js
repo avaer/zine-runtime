@@ -762,9 +762,13 @@ export class PanelInstanceManager extends THREE.Object3D {
       });
     }
 
-    // set spawn point
-    const firstPanel = this.panelInstances[this.panelIndex];
-    firstPanel.setSelected(true);
+    // select the root panel
+    const rootPanel = this.panelInstances.find(panelInstance => {
+      const layer0 = panelInstance.panel.getLayer(0);
+      const isRoot = layer0.getData('isRoot');
+      return isRoot;
+    }) ?? this.panelInstances[0];
+    rootPanel.setSelected(true);
   }
   async spawn() {
     const firstPanel = this.panelInstances[this.panelIndex];
