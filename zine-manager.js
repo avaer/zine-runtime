@@ -478,33 +478,49 @@ class PanelRuntimeInstance extends THREE.Object3D {
       } = zineRenderer.metadata;
 
       const _updateEntranceExitHighlights = () => {
-        const localPlayer = playersManager.getLocalPlayer();
-        const {
-          capsuleWidth: capsuleRadius,
-          capsuleHeight,
-        } = localPlayer.characterPhysics;
-        const capsulePosition = localPlayer.position;
+        const {localPlayer} = this;
+        if (localPlayer.loaded) {
+          const {
+            capsuleWidth: capsuleRadius,
+            capsuleHeight,
+          } = localPlayer.characterPhysics;
+          const capsulePosition = localPlayer.position;
 
-        const intersectionIndex = getCapsuleIntersectionIndex(
-          entranceExitLocations,
-          zineRenderer.transformScene.matrixWorld,
-          capsulePosition,
-          capsuleRadius,
-          capsuleHeight
-        );
+          const intersectionIndex = getCapsuleIntersectionIndex(
+            entranceExitLocations,
+            zineRenderer.transformScene.matrixWorld,
+            capsulePosition,
+            capsuleRadius,
+            capsuleHeight
+          );
 
-        const highlights = new Uint8Array(entranceExitLocations.length);
-        if (intersectionIndex !== -1) {
-          highlights[intersectionIndex] = 1;
-        }
-        this.entranceExitMesh && this.entranceExitMesh.setHighlights(highlights);
+          // console.log('test capsule position', intersectionIndex, capsulePosition.toArray().join(','));
 
-        if (intersectionIndex !== -1) {
-          this.dispatchEvent({
-            type: 'transition',
-            entranceExitIndex: intersectionIndex,
-            panelIndexDelta: intersectionIndex === 0 ? -1 : 1,
-          });
+          const highlights = new Uint8Array(entranceExitLocations.length);
+          if (intersectionIndex !== -1) {
+            highlights[intersectionIndex] = 1;
+          }
+          this.entranceExitMesh && this.entranceExitMesh.setHighlights(highlights);
+
+          if (intersectionIndex !== -1) {
+            const entranceExit = zineRenderer.metadata.entranceExitLocations[intersectionIndex];
+            const {
+              panelIndex,
+              entranceIndex,
+            } = entranceExit;
+            // console.log('trigger entrance exit', panelIndex, entranceIndex);
+            if (panelIndex !== -1 && entranceIndex !== -1) {
+              // console.log('transition', entranceExit);
+              this.dispatchEvent({
+                type: 'transition',
+                // entranceExitIndex: intersectionIndex,
+                // panelIndexDelta: intersectionIndex === 0 ? -1 : 1,
+                exitIndex: intersectionIndex,
+                panelIndex,
+                entranceIndex,
+              });
+            }
+          }
         }
       };
       _updateEntranceExitHighlights();
