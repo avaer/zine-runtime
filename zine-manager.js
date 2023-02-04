@@ -879,7 +879,8 @@ class ZineManager {
   async createStoryboardInstanceAsync({
     start_url,
     physics,
-    zineCameraManager = zineCameraManagerGlobal,
+    renderer,
+    zineCameraManager,
   }) {
     const instance = new THREE.Scene();
     instance.name = 'storyboardInstance';
@@ -910,7 +911,7 @@ class ZineManager {
 
         const _compile = () => {
           const {panelInstances} = panelInstanceManager;
-          const renderer = getRenderer();
+          // const renderer = getRenderer();
           for (let i = 0; i < panelInstances.length; i++) {
             const panelInstance = panelInstances[i];
             panelInstance.visible = true;
