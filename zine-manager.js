@@ -530,10 +530,11 @@ class PanelRuntimeInstance extends THREE.Object3D {
 
 //
 
-class PanelInstanceManager extends THREE.Object3D {
+export class PanelInstanceManager extends THREE.Object3D {
   constructor(storyboard, {
     zineCameraManager,
     physics,
+    localPlayer,
   }) {
     super();
 
@@ -543,6 +544,7 @@ class PanelInstanceManager extends THREE.Object3D {
     
     this.zineCameraManager = zineCameraManager;
     this.physics = physics;
+    this.localPlayer = localPlayer;
 
     this.panelIndex = 0;
     this.panelInstances = [];
