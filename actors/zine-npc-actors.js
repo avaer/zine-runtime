@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import alea from 'alea';
-import {world} from '../../world.js';
-import metaversefileApi from '../../metaversefile-api.js';
+// import {world} from '../../world.js';
+// import metaversefileApi from '../../metaversefile-api.js';
 
 const avatarNames = [
   'avatar_0_0.vrm',
@@ -85,6 +85,8 @@ export class PanelRuntimeNpcs extends THREE.Object3D {
         //   quaternion,
         //   opts,
         // });
+        console.warn('would have created app', opts);
+        debugger;
         const npcApp = await metaversefileApi.createAppAsync(opts);
         // console.log('create npc app 2', npcApp);
         this.add(npcApp);

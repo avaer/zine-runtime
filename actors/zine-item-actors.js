@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import alea from 'alea';
-import metaversefileApi from '../../metaversefile-api.js';
+// import metaversefileApi from '../../metaversefile-api.js';
 
 const itemNames = [
   'alienburger.glb',
@@ -273,6 +273,9 @@ export class PanelRuntimeItems extends THREE.Object3D {
   }) {
     super();
 
+    console.warn('load panel runtime items', candidateLocations);
+    debugger;
+
     const rng = alea(seed);
     
     for (let i = 0; i < n; i++) {
@@ -305,7 +308,9 @@ export class PanelRuntimeItems extends THREE.Object3D {
             },
           ],
         };
-        const npcApp = await metaversefileApi.createAppAsync(opts);
+        console.warn('would have loaded item', opts);
+        debugger;
+        // const npcApp = await metaversefileApi.createAppAsync(opts);
         this.add(npcApp);
       })();
     }

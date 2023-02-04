@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import alea from 'alea';
-import metaversefileApi from '../../metaversefile-api.js';
+// import metaversefileApi from '../../metaversefile-api.js';
 
 const mobNames = [
   'silkworm-biter.glb',
@@ -53,6 +53,7 @@ export class PanelRuntimeMobs extends THREE.Object3D {
             },
           ],
         };
+        console.warn('would have created app', opts);
         const mobApp = await metaversefileApi.createAppAsync(opts);
         // console.log('set mob', mobApp);
         this.add(mobApp);

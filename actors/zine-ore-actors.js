@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import alea from 'alea';
-import metaversefileApi from '../../metaversefile-api.js';
+// import metaversefileApi from '../../metaversefile-api.js';
 
 const oreNames = [
   'ore_deposit_black_dream.glb',
@@ -62,7 +62,9 @@ export class PanelRuntimeOres extends THREE.Object3D {
             },
           ],
         };
-        const npcApp = await metaversefileApi.createAppAsync(opts);
+        console.warn('would have created app', opts);
+        debugger;
+        const oreApp = await metaversefileApi.createAppAsync(opts);
         this.add(npcApp);
       })();
     }
