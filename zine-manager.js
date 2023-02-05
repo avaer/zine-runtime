@@ -542,7 +542,7 @@ export class PanelInstanceManager extends THREE.Object3D {
     this.physics = physics;
     this.localPlayer = localPlayer;
 
-    this.panelIndex = 0;
+    this.panelIndex = -1;
     this.panelInstances = [];
 
     // story target mesh
@@ -618,11 +618,9 @@ export class PanelInstanceManager extends THREE.Object3D {
       panelInstance.addEventListener('transition', e => {
         // attempt to transition panels
         const {
-          // entranceExitIndex,
           exitIndex,
-          // panelIndexDelta,
           panelIndex: nextPanelIndex,
-          entranceIndex,
+          entranceIndex: nextEntranceIndex,
         } = e;
         // let nextPanelIndex = this.panelIndex + panelIndexDelta;
         if (nextPanelIndex >= 0 && nextPanelIndex < panels.length) { // if it leads to a valid panel
@@ -654,7 +652,6 @@ export class PanelInstanceManager extends THREE.Object3D {
 
           // compute entranceLocalLocation
           const nextPanelInstance = this.panelInstances[nextPanelIndex];
-          const nextEntranceIndex = nextPanelIndex > this.panelIndex ? 0 : 1;
           const {
             entranceExitLocations: nextEntranceExitLocations,
           } = nextPanelInstance.zineRenderer.metadata;
@@ -759,11 +756,13 @@ export class PanelInstanceManager extends THREE.Object3D {
     }
 
     // select the root panel
-    const rootPanel = this.panelInstances.find(panelInstance => {
+    const rootPanelIndex = this.panelInstances.findIndex(panelInstance => {
       const layer0 = panelInstance.panel.getLayer(0);
       const isRoot = layer0.getData('isRoot');
       return isRoot;
-    }) ?? this.panelInstances[0];
+    }) ?? 0;
+    this.panelIndex = rootPanelIndex;
+    const rootPanel = this.panelInstances[rootPanelIndex];
     rootPanel.setSelected(true);
   }
   spawn() {
