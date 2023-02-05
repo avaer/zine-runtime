@@ -389,20 +389,24 @@ class PanelRuntimeInstance extends THREE.Object3D {
   #candidateLocationsWorldize(candidateLocations) {
     const {zineRenderer} = this;
     return candidateLocations.map(cl => {
-      localMatrix.compose(
-        localVector.fromArray(cl.position),
-        localQuaternion.fromArray(cl.quaternion),
-        oneVector,
-      ).premultiply(zineRenderer.transformScene.matrixWorld).decompose(
-        localVector,
-        localQuaternion,
-        localVector2
-      );
-      return {
-        position: localVector.toArray(),
-        quaternion: localQuaternion.toArray(),
-      };
+      return this.#candidateLocationWorldize(cl);
     });
+  }
+  #candidateLocationWorldize(cl) {
+    const {zineRenderer} = this;
+    localMatrix.compose(
+      localVector.fromArray(cl.position),
+      localQuaternion.fromArray(cl.quaternion),
+      oneVector,
+    ).premultiply(zineRenderer.transformScene.matrixWorld).decompose(
+      localVector,
+      localQuaternion,
+      localVector2
+    );
+    return {
+      position: localVector.toArray(),
+      quaternion: localQuaternion.toArray(),
+    };
   }
   setActorsEnabled(enabled = true) {
     if (enabled) {
