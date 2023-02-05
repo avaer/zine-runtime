@@ -53,8 +53,11 @@ export class PanelRuntimeMobs extends THREE.Object3D {
             },
           ],
         };
-        console.warn('would have created app', opts);
-        const mobApp = await metaversefileApi.createAppAsync(opts);
+        
+        // console.warn('would have created app', opts);
+        return;
+        
+        // const mobApp = await metaversefileApi.createAppAsync(opts);
         // console.log('set mob', mobApp);
         this.add(mobApp);
       })();

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import alea from 'alea';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 // import metaversefileApi from '../../metaversefile-api.js';
 
 const oreNames = [
@@ -20,7 +21,35 @@ const oreNames = [
   'Unrefined_Obsidian_v1.2_Guilty.glb',
   'Unrefined_Venturine_v1.2_Guilty.glb',
 ];
-const oreUrls = oreNames.map(name => `./packages/zine/resources/ores/${name}`);
+const oreUrls = oreNames.map(name => `https://cdn.jsdelivr.net/gh/webaverse/content@master/ores/${name}`);
+
+const createAppAsync = async opts => {
+  const {
+    position,
+    quaternion,
+    content: itemJson,
+  } = opts;
+  const {
+    modelUrl: oreUrl,
+  } = itemJson;
+
+  const gltf = await new Promise((accept, reject) => {
+    new GLTFLoader().load(oreUrl, accept, null, reject);
+  });
+  const model = gltf.scene;
+  model.position.fromArray(position);
+  model.quaternion.fromArray(quaternion);
+  
+  // model.updateMatrixWorld();
+
+  // const p = new THREE.Vector3();
+  // const q = new THREE.Quaternion();
+  // const s = new THREE.Vector3();
+  // model.matrixWorld.decompose(p, q, s);
+  // console.warn('ores pre', p.toArray(), q.toArray(), s.toArray());
+  
+  return model;
+};
 
 export class PanelRuntimeOres extends THREE.Object3D {
   constructor({
@@ -62,10 +91,10 @@ export class PanelRuntimeOres extends THREE.Object3D {
             },
           ],
         };
-        console.warn('would have created app', opts);
-        debugger;
-        const oreApp = await metaversefileApi.createAppAsync(opts);
-        this.add(npcApp);
+        // const oreApp = await metaversefileApi.createAppAsync(opts);
+        const oreApp = await createAppAsync(opts);
+        this.add(oreApp);
+        oreApp.updateMatrixWorld();
       })();
     }
   }

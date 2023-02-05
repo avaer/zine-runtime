@@ -85,8 +85,11 @@ export class PanelRuntimeNpcs extends THREE.Object3D {
         //   quaternion,
         //   opts,
         // });
-        console.warn('would have created app', opts);
-        debugger;
+
+        // console.warn('would have created app', opts);
+        // debugger;
+        return;
+        
         const npcApp = await metaversefileApi.createAppAsync(opts);
         // console.log('create npc app 2', npcApp);
         this.add(npcApp);

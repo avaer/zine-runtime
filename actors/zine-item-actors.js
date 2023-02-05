@@ -273,8 +273,9 @@ export class PanelRuntimeItems extends THREE.Object3D {
   }) {
     super();
 
-    console.warn('load panel runtime items', candidateLocations);
-    debugger;
+    // console.warn('load panel runtime items', candidateLocations);
+    // debugger;
+    return;
 
     const rng = alea(seed);
     
