@@ -368,7 +368,9 @@ class PanelRuntimeInstance extends THREE.Object3D {
     const {panel, zineRenderer} = this;
     const layer1 = panel.getLayer(1);
     const candidateLocations = layer1.getData('candidateLocations');
-    return candidateLocations.map(cl => {
+    return candidateLocations;
+    // return candidateLocations.slice();
+    /* return candidateLocations.map(cl => {
       localMatrix.compose(
         localVector.fromArray(cl.position),
         localQuaternion.fromArray(cl.quaternion),
@@ -382,7 +384,7 @@ class PanelRuntimeInstance extends THREE.Object3D {
         position: localVector.toArray(),
         quaternion: localQuaternion.toArray(),
       };
-    });
+    }); */
   }
   setActorsEnabled(enabled = true) {
     return; // XXX unlock this
