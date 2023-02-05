@@ -386,6 +386,24 @@ class PanelRuntimeInstance extends THREE.Object3D {
       };
     }); */
   }
+  #candidateLocationsWorldize(candidateLocations) {
+    const {zineRenderer} = this;
+    return candidateLocations.map(cl => {
+      localMatrix.compose(
+        localVector.fromArray(cl.position),
+        localQuaternion.fromArray(cl.quaternion),
+        oneVector,
+      ).premultiply(zineRenderer.transformScene.matrixWorld).decompose(
+        localVector,
+        localQuaternion,
+        localVector2
+      );
+      return {
+        position: localVector.toArray(),
+        quaternion: localQuaternion.toArray(),
+      };
+    });
+  }
   setActorsEnabled(enabled = true) {
     if (enabled) {
       const {zineRenderer} = this;
@@ -411,16 +429,18 @@ class PanelRuntimeInstance extends THREE.Object3D {
           seed: localSeed,
         });
         zineRenderer.transformScene.add(this.actors.ore);
-        zineRenderer.transformScene.updateMatrixWorld();
+        this.actors.ore.updateMatrixWorld();
       }
       if (!this.actors.npc && candidateLocations.length > 0) {
+        const candidateLocationsWorld = this.#candidateLocationsWorldize(candidateLocations);
+
         this.actors.npc = new PanelRuntimeNpcs({
-          candidateLocations,
+          candidateLocations: candidateLocationsWorld,
           n: 1,
           seed: localSeed,
         });
-        zineRenderer.transformScene.add(this.actors.npc);
-        zineRenderer.transformScene.updateMatrixWorld();
+        this.add(this.actors.npc);
+        this.actors.npc.updateMatrixWorld();
       }
       if (!this.actors.mob && candidateLocations.length > 0) {
         this.actors.mob = new PanelRuntimeMobs({
@@ -429,7 +449,7 @@ class PanelRuntimeInstance extends THREE.Object3D {
           seed: localSeed,
         });
         zineRenderer.transformScene.add(this.actors.mob);
-        zineRenderer.transformScene.updateMatrixWorld();
+        this.actors.mob.updateMatrixWorld();
       }
     }
   }
