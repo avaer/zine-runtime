@@ -433,7 +433,7 @@ class PanelRuntimeInstance extends THREE.Object3D {
       this.visible = selected;
 
       this.setPhysicsEnabled(selected);
-      this.setActorsEnabled(selected)
+      this.setActorsEnabled(selected);
 
       if (this.selected) {
         this.zineCameraManager.setLockCamera(this.zineRenderer.camera);
@@ -508,13 +508,9 @@ class PanelRuntimeInstance extends THREE.Object3D {
               panelIndex,
               entranceIndex,
             } = entranceExit;
-            // console.log('trigger entrance exit', panelIndex, entranceIndex);
             if (panelIndex !== -1 && entranceIndex !== -1) {
-              // console.log('transition', entranceExit);
               this.dispatchEvent({
                 type: 'transition',
-                // entranceExitIndex: intersectionIndex,
-                // panelIndexDelta: intersectionIndex === 0 ? -1 : 1,
                 exitIndex: intersectionIndex,
                 panelIndex,
                 entranceIndex,
