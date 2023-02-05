@@ -417,6 +417,8 @@ class PanelRuntimeInstance extends THREE.Object3D {
       const localSeed = id + seed;
 
       const candidateLocations = this.#getUnusedCandidateLocations();
+      
+      // item
       if (!this.actors.item && candidateLocations.length > 0) {
         this.actors.item = new PanelRuntimeItems({
           candidateLocations,
@@ -426,6 +428,8 @@ class PanelRuntimeInstance extends THREE.Object3D {
         zineRenderer.transformScene.add(this.actors.item);
         this.actors.item.updateMatrixWorld();
       }
+
+      // ore
       if (!this.actors.ore && candidateLocations.length > 0) {
         this.actors.ore = new PanelRuntimeOres({
           candidateLocations,
@@ -435,17 +439,74 @@ class PanelRuntimeInstance extends THREE.Object3D {
         zineRenderer.transformScene.add(this.actors.ore);
         this.actors.ore.updateMatrixWorld();
       }
-      if (!this.actors.npc && candidateLocations.length > 0) {
-        const candidateLocationsWorld = this.#candidateLocationsWorldize(candidateLocations);
 
+      // npc
+      if (!this.actors.npc && candidateLocations.length > 0) {
+        // const candidateLocationsWorld = this.#candidateLocationsWorldize(candidateLocations);
+
+        // create npc
         this.actors.npc = new PanelRuntimeNpcs({
-          candidateLocations: candidateLocationsWorld,
+          // candidateLocations: candidateLocationsWorld,
+          candidateLocations,
           n: 1,
           seed: localSeed,
         });
         this.add(this.actors.npc);
         this.actors.npc.updateMatrixWorld();
+
+        // animate npc
+        let lastTimestamp = performance.now();
+        const _animate = () => {
+          const _recurse = () => {
+            frame = requestAnimationFrame(_recurse);
+      
+            const timestamp = performance.now();
+            const timeDiff = timestamp - lastTimestamp;
+
+            if (this.actors.npc.loaded) {
+              const {npcApps} = this.actors.npc;
+              for (let i = 0; i < npcApps.length; i++) {
+                const npcApp = npcApps[i];
+                const {avatar} = npcApp;
+                if (!avatar) {
+                  debugger;
+                }
+                avatar.update(timestamp, timeDiff);
+              }
+
+              lastTimestamp = timestamp;
+            }
+          };
+          let frame = requestAnimationFrame(_recurse);
+        };
+        _animate();
       }
+      if (this.actors.npc) {
+        (async () => {
+          await this.actors.npc.waitForLoad();
+
+          const {locations, npcApps} = this.actors.npc;
+          for (let i = 0; i < locations.length; i++) {
+            const location = locations[i];
+            const npcApp = npcApps[i];
+
+            const {
+              position,
+              quaternion,
+            } = this.#candidateLocationWorldize(location);
+            const {avatar} = npcApp;
+            if (!avatar) {
+              debugger;
+            }
+            avatar.inputs.hmd.position.fromArray(position);
+            avatar.inputs.hmd.position.y += avatar.height;
+            avatar.inputs.hmd.quaternion.fromArray(quaternion);
+            // console.log('load location', position.slice(), quaternion.slice());
+          }
+        })();
+      }
+
+      // mob
       if (!this.actors.mob && candidateLocations.length > 0) {
         this.actors.mob = new PanelRuntimeMobs({
           candidateLocations,
