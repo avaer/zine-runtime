@@ -1,41 +1,63 @@
 import * as THREE from 'three';
 import alea from 'alea';
-// import {world} from '../../world.js';
-// import metaversefileApi from '../../metaversefile-api.js';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {
+  AvatarManager,
+} from '../../components/generators/AvatarManager.js';
 
 const avatarNames = [
-  'avatar_0_0.vrm',
-  'avatar_0_1.vrm',
-  'avatar_0_2.vrm',
-  'avatar_0_3.vrm',
-  'avatar_0_4.vrm',
-  'avatar_0_5.vrm',
-  'avatar_0_6.vrm',
-  'avatar_0_7.vrm',
-  'avatar_0_8.vrm',
-  'avatar_0_9.vrm',
-  'avatar_1_0.vrm',
-  'avatar_1_1.vrm',
-  'avatar_1_2.vrm',
-  'avatar_1_3.vrm',
-  'avatar_1_4.vrm',
-  'avatar_1_5.vrm',
-  'avatar_1_6.vrm',
-  'avatar_1_7.vrm',
-  'avatar_1_8.vrm',
-  'avatar_1_9.vrm',
+  'ann_liskwitch_v3.1_guilty.vrm',
+  'citrine.vrm',
+  'Buster_Rabbit_V1.1_Guilty.vrm',
 ];
-const avatarUrls = avatarNames.map(name => `./packages/zine/resources/avatars/${name}`);
-// const avatarNames = [
-//   // 'DropHunter_Master_v2_Guilty.vrm',
-//   // 'HackerClassMaster_v2.1_Guilty.vrm',
-//   // 'avatar_raw_0.vrm',
-//   // 'avatar_invisible_0.vrm',
-//   'avatar_visible_0.vrm',
-// ];
-// const avatarUrls = [
-//   `./packages/zine/resources/avatars/source/${avatarNames[0]}`,
-// ];
+const avatarUrls = avatarNames.map(name => `https://cdn.jsdelivr.net/gh/webaverse/content@main/avatars/${name}`);
+
+const createAppAsync = async (opts) => {
+  const {
+    position,
+    quaternion,
+    content: npcJson,
+  } = opts;
+  const {
+    avatarUrl,
+  } = npcJson;
+
+  const gltf = await new Promise((accept, reject) => {
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.load(avatarUrl, accept, null, reject);
+  });
+
+  const avatar = await AvatarManager.makeAvatar({
+    gltf,
+  });
+  const {
+    avatarQuality,
+  } = avatar;
+  // console.log('got avatr', avatar, avatarQuality);
+
+  const _animate = () => {
+    let lastTimestamp = performance.now();
+    const _recurse = () => {
+      frame = requestAnimationFrame(_recurse);
+
+      avatar.inputs.hmd.position.fromArray(position);
+      avatar.inputs.hmd.quaternion.fromArray(quaternion);
+
+      const timestamp = performance.now();
+      const timeDiff = timestamp - lastTimestamp;
+      avatar.update(timestamp, timeDiff);
+
+      // this.controls.update();
+      // this.renderer.render(this.scene, this.camera);
+
+      lastTimestamp = timestamp;
+    };
+    let frame = requestAnimationFrame(_recurse);
+  };
+  _animate();
+
+  return avatarQuality.scene;
+};
 
 export class PanelRuntimeNpcs extends THREE.Object3D {
   constructor({
@@ -55,21 +77,22 @@ export class PanelRuntimeNpcs extends THREE.Object3D {
         quaternion, // array[4]
       } = candidateLocation;
 
+      const position2 = position.slice();
+      position2[1] += 1.5;
+
       const avatarUrlIndex = Math.floor(rng() * avatarUrls.length);
       const avatarName = avatarNames[avatarUrlIndex];
       const avatarUrl = avatarUrls[avatarUrlIndex];
 
       const npcJson = {
         name: avatarName,
-        previewUrl: "./images/characters/upstreet/small/drake.png",
-        // avatarUrl: "./avatars/Drake_hacker_v8_Guilty.vrm",
+        // previewUrl: "./images/characters/upstreet/small/drake.png",
         avatarUrl,
         voice: "Mizuki",
-        // voicePack: "ShiShi voice pack",
-        voicePack: "Scillia voice pack",
-        class: "Drop Hunter",
-        bio: "His nickname is DRK. 15/M hacker. Loves guns. Likes plotting new hacks. He has the best equipment and is always ready for a fight.",
-        themeSongUrl: "https://webaverse.github.io/music/themes/129079005-im-gonna-find-it-mystery-sci-f.mp3"
+        // voicePack: "Scillia voice pack",
+        // class: "Drop Hunter",
+        // bio: "His nickname is DRK. 15/M hacker. Loves guns. Likes plotting new hacks. He has the best equipment and is always ready for a fight.",
+        // themeSongUrl: "https://webaverse.github.io/music/themes/129079005-im-gonna-find-it-mystery-sci-f.mp3"
       };
       // console.log('load npc json', npcJson);
 
@@ -77,24 +100,18 @@ export class PanelRuntimeNpcs extends THREE.Object3D {
         const opts = {
           type: 'application/npc',
           content: npcJson,
-          position,
+          position: position2,
           quaternion,
         };
-        // console.log('create npc app 1', {
-        //   position,
-        //   quaternion,
-        //   opts,
-        // });
 
         // console.warn('would have created app', opts);
         // debugger;
-        return;
-        
-        const npcApp = await metaversefileApi.createAppAsync(opts);
+
+        // const npcApp = await metaversefileApi.createAppAsync(opts);
+        const npcApp = await createAppAsync(opts);
         // console.log('create npc app 2', npcApp);
         this.add(npcApp);
-
-        world.appManager.apps.push(npcApp);
+        npcApp.updateMatrixWorld();
       })();
     }
   }
