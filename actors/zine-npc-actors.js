@@ -35,28 +35,18 @@ const createAppAsync = async (opts) => {
   } = avatar;
   // console.log('got avatr', avatar, avatarQuality);
 
-  const _animate = () => {
-    let lastTimestamp = performance.now();
-    const _recurse = () => {
-      frame = requestAnimationFrame(_recurse);
+  const app = avatarQuality.scene;
+  app.avatar = avatar;
 
-      avatar.inputs.hmd.position.fromArray(position);
-      avatar.inputs.hmd.quaternion.fromArray(quaternion);
+  let lastTimestamp = performance.now();
+  app.update = (timestamp) => {
+    const timeDiff = timestamp - lastTimestamp;
+    avatar.update(timestamp, timeDiff);
 
-      const timestamp = performance.now();
-      const timeDiff = timestamp - lastTimestamp;
-      avatar.update(timestamp, timeDiff);
-
-      // this.controls.update();
-      // this.renderer.render(this.scene, this.camera);
-
-      lastTimestamp = timestamp;
-    };
-    let frame = requestAnimationFrame(_recurse);
+    lastTimestamp = timestamp;
   };
-  _animate();
 
-  return avatarQuality.scene;
+  return app;
 };
 
 export class PanelRuntimeNpcs extends THREE.Object3D {
