@@ -387,9 +387,9 @@ class PanelRuntimeInstance extends THREE.Object3D {
     }); */
   }
   setActorsEnabled(enabled = true) {
-    return; // XXX unlock this
-
     if (enabled) {
+      const {zineRenderer} = this;
+
       const layer0 = this.panel.getLayer(0);
       const id = layer0.getData('id');
       const localSeed = id + seed;
@@ -401,7 +401,8 @@ class PanelRuntimeInstance extends THREE.Object3D {
           n: 1,
           seed: localSeed,
         });
-        this.add(this.actors.item);
+        zineRenderer.transformScene.add(this.actors.item);
+        this.actors.item.updateMatrixWorld();
       }
       if (!this.actors.ore && candidateLocations.length > 0) {
         this.actors.ore = new PanelRuntimeOres({
@@ -409,7 +410,8 @@ class PanelRuntimeInstance extends THREE.Object3D {
           n: 1,
           seed: localSeed,
         });
-        this.add(this.actors.ore);
+        zineRenderer.transformScene.add(this.actors.ore);
+        zineRenderer.transformScene.updateMatrixWorld();
       }
       if (!this.actors.npc && candidateLocations.length > 0) {
         this.actors.npc = new PanelRuntimeNpcs({
@@ -417,7 +419,8 @@ class PanelRuntimeInstance extends THREE.Object3D {
           n: 1,
           seed: localSeed,
         });
-        this.add(this.actors.npc);
+        zineRenderer.transformScene.add(this.actors.npc);
+        zineRenderer.transformScene.updateMatrixWorld();
       }
       if (!this.actors.mob && candidateLocations.length > 0) {
         this.actors.mob = new PanelRuntimeMobs({
@@ -425,7 +428,8 @@ class PanelRuntimeInstance extends THREE.Object3D {
           n: 1,
           seed: localSeed,
         });
-        this.add(this.actors.mob);
+        zineRenderer.transformScene.add(this.actors.mob);
+        zineRenderer.transformScene.updateMatrixWorld();
       }
     }
   }
