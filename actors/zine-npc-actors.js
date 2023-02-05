@@ -59,6 +59,8 @@ export class PanelRuntimeNpcs extends THREE.Object3D {
 
     const rng = alea(seed);
     
+    this.locations = [];
+    this.npcApps = [];
     for (let i = 0; i < n; i++) {
       const candidateLocationIndex = Math.floor(rng() * candidateLocations.length);
       const candidateLocation = candidateLocations.splice(candidateLocationIndex, 1)[0];
@@ -68,7 +70,12 @@ export class PanelRuntimeNpcs extends THREE.Object3D {
       } = candidateLocation;
 
       const position2 = position.slice();
-      position2[1] += 1.5;
+      // position2[1] += 1.5;
+
+      this.locations.push({
+        position: position2.slice(),
+        quaternion: quaternion.slice(),
+      });
 
       const avatarUrlIndex = Math.floor(rng() * avatarUrls.length);
       const avatarName = avatarNames[avatarUrlIndex];
@@ -86,7 +93,8 @@ export class PanelRuntimeNpcs extends THREE.Object3D {
       };
       // console.log('load npc json', npcJson);
 
-      (async () => {
+      this.loaded = false;
+      this.loadPromise = (async () => {
         const opts = {
           type: 'application/npc',
           content: npcJson,
@@ -102,7 +110,14 @@ export class PanelRuntimeNpcs extends THREE.Object3D {
         // console.log('create npc app 2', npcApp);
         this.add(npcApp);
         npcApp.updateMatrixWorld();
+
+        this.npcApps.push(npcApp);
+
+        this.loaded = true;
       })();
     }
+  }
+  async waitForLoad() {
+    await this.loadPromise;
   }
 }
