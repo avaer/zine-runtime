@@ -5,7 +5,7 @@ import * as THREE from 'three';
 //   getRenderer,
 //   scene,
 // } from '../renderer.js';
-import spawnManager from '../../spawn-manager.js';
+// import spawnManager from '../../spawn-manager.js';
 import {
   ZineStoryboard,
   zineMagicBytes,
@@ -42,6 +42,7 @@ import {
 // } from '../players-manager.js';
 
 import {
+  makePromise,
   getCapsuleIntersectionIndex,
 } from './zine-runtime-utils.js';
 import {
@@ -63,9 +64,10 @@ import {
   PanelRuntimeMobs,
 } from './actors/zine-mob-actors.js';
 
-import {heightfieldScale} from '../../constants/physics-constants.js';
+import {
+  heightfieldScale,
+} from '../zine/zine-constants.js';
 // import {world} from '../world.js';
-import {makePromise} from '../../utils.js';
 
 // constants
 
@@ -93,6 +95,7 @@ class PanelRuntimeInstance extends THREE.Object3D {
     zineCameraManager,
     physics,
     localPlayer,
+    ctx,
   }) {
     super();
 
@@ -102,6 +105,7 @@ class PanelRuntimeInstance extends THREE.Object3D {
     this.panel = panel;
     this.physics = physics;
     this.localPlayer = localPlayer;
+    this.ctx = ctx;
 
     this.loaded = false;
     this.selected = false;
@@ -409,6 +413,8 @@ class PanelRuntimeInstance extends THREE.Object3D {
     };
   }
   setActorsEnabled(enabled = true) {
+    const {ctx} = this;
+
     if (enabled) {
       const {zineRenderer} = this;
 
@@ -424,6 +430,7 @@ class PanelRuntimeInstance extends THREE.Object3D {
           candidateLocations,
           n: 1,
           seed: localSeed,
+          ctx,
         });
         zineRenderer.transformScene.add(this.actors.item);
         this.actors.item.updateMatrixWorld();
@@ -435,6 +442,7 @@ class PanelRuntimeInstance extends THREE.Object3D {
           candidateLocations,
           n: 1,
           seed: localSeed,
+          ctx,
         });
         zineRenderer.transformScene.add(this.actors.ore);
         this.actors.ore.updateMatrixWorld();
@@ -450,6 +458,7 @@ class PanelRuntimeInstance extends THREE.Object3D {
           candidateLocations,
           n: 1,
           seed: localSeed,
+          ctx,
         });
         this.add(this.actors.npc);
         this.actors.npc.updateMatrixWorld();
@@ -467,7 +476,12 @@ class PanelRuntimeInstance extends THREE.Object3D {
               const {npcApps} = this.actors.npc;
               for (let i = 0; i < npcApps.length; i++) {
                 const npcApp = npcApps[i];
-                const {avatar} = npcApp;
+                const {
+                  npc,
+                } = npcApp;
+                const {
+                  avatar,
+                } = npc;
                 if (!avatar) {
                   debugger;
                 }
@@ -494,7 +508,12 @@ class PanelRuntimeInstance extends THREE.Object3D {
               position,
               quaternion,
             } = this.#candidateLocationWorldize(location);
-            const {avatar} = npcApp;
+            const {
+              npc,
+            } = npcApp;
+            const {
+              avatar,
+            } = npc;
             if (!avatar) {
               debugger;
             }
@@ -622,6 +641,8 @@ export class PanelInstanceManager extends THREE.Object3D {
     zineCameraManager,
     physics,
     localPlayer,
+    spawnManager,
+    ctx,
   }) {
     super();
 
@@ -632,6 +653,8 @@ export class PanelInstanceManager extends THREE.Object3D {
     this.zineCameraManager = zineCameraManager;
     this.physics = physics;
     this.localPlayer = localPlayer;
+    this.spawnManager = spawnManager;
+    this.ctx = ctx;
 
     this.panelIndex = -1;
     this.panelInstances = [];
@@ -650,11 +673,13 @@ export class PanelInstanceManager extends THREE.Object3D {
       zineCameraManager,
       physics,
       localPlayer,
+      ctx,
     } = this;
     const panelOpts = {
       zineCameraManager,
       physics,
       localPlayer,
+      ctx,
     };
 
     // create panel instances
@@ -672,13 +697,15 @@ export class PanelInstanceManager extends THREE.Object3D {
     }
 
     // wait for load
-    (async () => {
+    // this.loaded = false;
+    this.loadPromise = (async () => {
       const panelInstances = this.panelInstances.slice();
       await Promise.all(panelInstances.map(panelInstance => panelInstance.waitForLoad()));
 
-      this.dispatchEvent({
-        type: 'load',
-      });
+      // this.loaded = true;
+      // this.dispatchEvent({
+      //   type: 'load',
+      // });
     })();
 
     // connect panels
@@ -847,11 +874,14 @@ export class PanelInstanceManager extends THREE.Object3D {
     }
 
     // select the root panel
-    const rootPanelIndex = this.panelInstances.findIndex(panelInstance => {
+    let rootPanelIndex = this.panelInstances.findIndex(panelInstance => {
       const layer0 = panelInstance.panel.getLayer(0);
       const isRoot = layer0.getData('isRoot');
       return isRoot;
-    }) ?? 0;
+    });
+    if (rootPanelIndex === -1) {
+      rootPanelIndex = 0;
+    }
     this.panelIndex = rootPanelIndex;
     const rootPanel = this.panelInstances[rootPanelIndex];
     rootPanel.setSelected(true);
@@ -875,7 +905,7 @@ export class PanelInstanceManager extends THREE.Object3D {
       quaternion,
       scale
     );
-    spawnManager.setSpawnPoint(position, quaternion);
+    this.spawnManager.setSpawnPoint(position, quaternion);
   }
   #pushRaycast() {
     const wallPhysicsObjects = [];
@@ -944,11 +974,14 @@ export class PanelInstanceManager extends THREE.Object3D {
     };
     _updateStoryTargetMesh();
   }
+  waitForLoad() {
+    return this.loadPromise;
+  }
 }
 
 // main class
 
-class ZineManager {
+export class ZineManager {
   MAGIC_STRING = zineMagicBytes;
   async #loadUrl(u) {
     const response = await fetch(u);
@@ -967,6 +1000,9 @@ class ZineManager {
     physics,
     renderer,
     zineCameraManager,
+    spawnManager,
+    localPlayer,
+    ctx,
   }) {
     const instance = new THREE.Scene();
     instance.name = 'storyboardInstance';
@@ -990,6 +1026,9 @@ class ZineManager {
     const panelInstanceManager = new PanelInstanceManager(storyboard, {
       zineCameraManager,
       physics,
+      spawnManager,
+      localPlayer,
+      ctx,
     });
     {
       const onload = e => {
@@ -1017,33 +1056,43 @@ class ZineManager {
     }
     instance.add(panelInstanceManager);
 
-    instance.spawn = async () => {
-      await panelInstanceManager.spawn();
+    instance.spawn = () => {
+      panelInstanceManager.spawn();
     };
 
     // update matrix world
     instance.updateMatrixWorld();
 
-    // update listeners
-    const {mousePosition} = zineCameraManager;
-    world.appManager.addEventListener('frame', e => {
-      panelInstanceManager.update({
-        mousePosition,
-      });
-    });
-    zineCameraManager.addEventListener('mousemove', e => {
-      const {movementX, movementY} = e.data;
-      const rate = 0.002;
-      mousePosition.x += movementX * rate;
-      mousePosition.y += movementY * rate;
+    // frame loop
+    const _startFrameLoop = () => {
+      const {mousePosition} = zineCameraManager;
+      const _recurse = () => {
+        frame = requestAnimationFrame(_recurse);
+        
+        panelInstanceManager.update({
+          mousePosition,
+        });
+      };
+      let frame = requestAnimationFrame(_recurse);
+      instance.destroy = () => {
+        cancelAnimationFrame(frame);
+      };
 
-      mousePosition.x = Math.min(Math.max(mousePosition.x, -1), 1);
-      mousePosition.y = Math.min(Math.max(mousePosition.y, -1), 1);
-    });
+      zineCameraManager.addEventListener('mousemove', e => {
+        const {movementX, movementY} = e.data;
+        const rate = 0.002;
+        mousePosition.x += movementX * rate;
+        mousePosition.y += movementY * rate;
+
+        mousePosition.x = Math.min(Math.max(mousePosition.x, -1), 1);
+        mousePosition.y = Math.min(Math.max(mousePosition.y, -1), 1);
+      });
+    };
+    _startFrameLoop();
 
     // return
     return instance;
   }
 }
-const zineManager = new ZineManager();
-export default zineManager;
+// const zineManager = new ZineManager();
+// export default zineManager;
