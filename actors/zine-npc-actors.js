@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import alea from 'alea';
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
-import {
-  AvatarManager,
-} from '../../components/generators/AvatarManager.js';
+import alea from '../alea.js';
+// import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+// import {
+//   AvatarManager,
+// } from '../../components/generators/AvatarManager.js';
 
 const avatarNames = [
   'ann_liskwitch_v3.1_guilty.vrm',
