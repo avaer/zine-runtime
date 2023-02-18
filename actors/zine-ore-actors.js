@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import alea from 'alea';
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+// import alea from 'alea';
+import alea from '../alea.js';
+// import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 // import metaversefileApi from '../../metaversefile-api.js';
 
 const oreNames = [
@@ -23,7 +24,7 @@ const oreNames = [
 ];
 const oreUrls = oreNames.map(name => `https://cdn.jsdelivr.net/gh/webaverse/content@master/ores/${name}`);
 
-const createAppAsync = async opts => {
+/* const createAppAsync = async opts => {
   const {
     position,
     quaternion,
@@ -49,15 +50,25 @@ const createAppAsync = async opts => {
   // console.warn('ores pre', p.toArray(), q.toArray(), s.toArray());
   
   return model;
-};
+}; */
 
 export class PanelRuntimeOres extends THREE.Object3D {
   constructor({
     candidateLocations,
     n = 1,
     seed = '',
+    ctx,
   }) {
     super();
+
+    if (!ctx) {
+      console.warn('no ctx', {candidateLocations, n, seed, ctx});
+      debugger;
+    }
+    const {
+      useEngine,
+    } = ctx;
+    const engine = useEngine();
 
     const rng = alea(seed);
     
@@ -92,7 +103,7 @@ export class PanelRuntimeOres extends THREE.Object3D {
           ],
         };
         // const oreApp = await metaversefileApi.createAppAsync(opts);
-        const oreApp = await createAppAsync(opts);
+        const oreApp = await engine.createAppAsync(opts);
         this.add(oreApp);
         oreApp.updateMatrixWorld();
       })();
