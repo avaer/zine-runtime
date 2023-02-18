@@ -12,7 +12,7 @@ const avatarNames = [
 ];
 const avatarUrls = avatarNames.map(name => `https://cdn.jsdelivr.net/gh/webaverse/content@main/avatars/${name}`);
 
-const createAppAsync = async (opts) => {
+/* const createAppAsync = async (opts) => {
   const {
     position,
     quaternion,
@@ -47,15 +47,28 @@ const createAppAsync = async (opts) => {
   };
 
   return app;
-};
+}; */
 
 export class PanelRuntimeNpcs extends THREE.Object3D {
   constructor({
     candidateLocations,
     n = 1,
     seed = 'npcs',
+    ctx,
   }) {
     super();
+
+    if (!ctx) {
+      console.warn('missing ctx', {ctx});
+      debugger;
+    }
+    // this.ctx = ctx;
+    const {
+      useEngine,
+      // useLoaders,
+    } = ctx;
+    const engine = useEngine();
+    // const loaders = useLoaders();
 
     const rng = alea(seed);
     
@@ -86,6 +99,7 @@ export class PanelRuntimeNpcs extends THREE.Object3D {
         // previewUrl: "./images/characters/upstreet/small/drake.png",
         avatarUrl,
         voice: "Mizuki",
+        voicePack: "ShiShi voice pack"
         // voicePack: "Scillia voice pack",
         // class: "Drop Hunter",
         // bio: "His nickname is DRK. 15/M hacker. Loves guns. Likes plotting new hacks. He has the best equipment and is always ready for a fight.",
@@ -106,7 +120,7 @@ export class PanelRuntimeNpcs extends THREE.Object3D {
         // debugger;
 
         // const npcApp = await metaversefileApi.createAppAsync(opts);
-        const npcApp = await createAppAsync(opts);
+        const npcApp = await engine.createAppAsync(opts);
         // console.log('create npc app 2', npcApp);
         this.add(npcApp);
         npcApp.updateMatrixWorld();
