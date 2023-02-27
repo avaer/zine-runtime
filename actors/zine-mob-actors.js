@@ -11,7 +11,7 @@ const mobNames = [
   'silkworm-slasher.glb',
   'silkworm.glb',
 ];
-const mobUrls = mobNames.map(name => `https://cdn.jsdelivr.net/gh/webaverse/gwe-assets@master/mobs/${name}`);
+const mobUrls = mobNames.map(name => `https://cdn.jsdelivr.net/gh/webaverse/content@master/mobs/${name}`);
 
 export class PanelRuntimeMobs extends THREE.Object3D {
   constructor({
