@@ -998,6 +998,7 @@ export class ZineManager {
   async createStoryboardInstanceAsync({
     start_url,
     physics,
+    physicsTracker,
     renderer,
     zineCameraManager,
     spawnManager,
@@ -1056,6 +1057,19 @@ export class ZineManager {
     }
     instance.add(panelInstanceManager);
 
+    instance.getPhysicsObjects = () => {
+      const physicsObjects = [];
+      // for all panel instances
+      for (let i = 0; i < panelInstanceManager.panelInstances.length; i++) {
+        const panelInstance = panelInstanceManager.panelInstances[i];
+        // for all physics objects
+        for (let j = 0; j < panelInstance.physicsIds.length; j++) {
+          const physicsObject = panelInstance.physicsIds[j];
+          physicsObjects.push(physicsObject);
+        }
+      }
+      return physicsObjects;
+    };
     instance.spawn = () => {
       panelInstanceManager.spawn();
     };
