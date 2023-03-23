@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-// import alea from 'alea';
-import alea from '../alea.js';
+import alea from 'alea';
 // import metaversefileApi from '../../metaversefile-api.js';
 
 const mobNames = [

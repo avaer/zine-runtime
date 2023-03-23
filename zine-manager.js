@@ -94,6 +94,7 @@ class PanelRuntimeInstance extends THREE.Object3D {
   constructor(panel, {
     zineCameraManager,
     physics,
+    // physicsTracker,
     localPlayer,
     ctx,
   }) {
@@ -104,6 +105,7 @@ class PanelRuntimeInstance extends THREE.Object3D {
     this.zineCameraManager = zineCameraManager;
     this.panel = panel;
     this.physics = physics;
+    // this.physicsTracker = physicsTracker;
     this.localPlayer = localPlayer;
     this.ctx = ctx;
 
@@ -678,6 +680,7 @@ export class PanelInstanceManager extends THREE.Object3D {
     const panelOpts = {
       zineCameraManager,
       physics,
+      // physicsTracker,
       localPlayer,
       ctx,
     };
